@@ -166,22 +166,62 @@ with tab1:
 with tab2:
     st.header("Multiple Experiments")
     
-    col1, col2, col3 = st.columns([1,1,1])
+    # Add visualization selection before running experiments
+    st.subheader("Experiment Settings")
+    col_left, col_right = st.columns([3, 2])
     
-    with col1:
-        n_experiments = st.slider("Number of Experiments", 10, 500, 100)
+    with col_left:
+        col1, col2, col3 = st.columns([1,1,1])
+        
+        with col1:
+            n_experiments = st.slider("Number of Experiments", 10, 500, 100)
+        
+        with col2:
+            experiment_type = st.radio("Experiment Type", ["Random", "Grid", "Custom DoE"])
+        
+        with col3:
+            st.write("Sample Strategy")
+            if experiment_type == "Random":
+                rand_strategy = st.radio("Random Sampling", ["Uniform", "Normal"])
+            elif experiment_type == "Grid":
+                grid_points = st.slider("Grid Points Per Factor", 2, 10, 3)
+            else:
+                doe_type = st.selectbox("DoE Type", ["Full Factorial", "Fractional Factorial"])
     
-    with col2:
-        experiment_type = st.radio("Experiment Type", ["Random", "Grid", "Custom DoE"])
-    
-    with col3:
-        st.write("Sample Strategy")
-        if experiment_type == "Random":
-            rand_strategy = st.radio("Random Sampling", ["Uniform", "Normal"])
-        elif experiment_type == "Grid":
-            grid_points = st.slider("Grid Points Per Factor", 2, 10, 3)
-        else:
-            doe_type = st.selectbox("DoE Type", ["Full Factorial", "Fractional Factorial"])
+    with col_right:
+        # Visualization options - store selection in session_state to persist across reruns
+        st.write("Visualization Settings")
+        viz_type = st.selectbox("Visualization Type", 
+                              ["3D Scatter", "Heatmap", "Box Plots"],
+                              index=["3D Scatter", "Heatmap", "Box Plots"].index(st.session_state.viz_type),
+                              key="viz_selector")
+        
+        # Update session state with new selection
+        st.session_state.viz_type = viz_type
+        
+        # Conditional UI based on visualization type
+        if viz_type == "Heatmap":
+            x_axis = st.selectbox("X-Axis", 
+                               ["Speed", "Pressure", "Temperature"],
+                               index=["Speed", "Pressure", "Temperature"].index(st.session_state.x_axis))
+            y_axis = st.selectbox("Y-Axis", 
+                               ["Pressure", "Temperature", "Speed"],
+                               index=["Pressure", "Temperature", "Speed"].index(st.session_state.y_axis))
+            
+            # Update session state
+            st.session_state.x_axis = x_axis
+            st.session_state.y_axis = y_axis
+            
+            if x_axis == y_axis:
+                st.warning("Please select different variables for X and Y axes")
+                
+        elif viz_type == "Box Plots":
+            factor = st.selectbox("Factor to Analyze", 
+                               ["Material", "Speed", "Pressure", "Temperature"],
+                               index=["Material", "Speed", "Pressure", "Temperature"].index(st.session_state.factor_to_analyze))
+            
+            # Update session state
+            st.session_state.factor_to_analyze = factor
     
     # Run experiments button
     if st.button("🧪 Run Experiments", key="run_experiments"):
@@ -263,72 +303,15 @@ with tab2:
                 data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
                 
         else:  # DoE
-            # For full factorial design with 2 levels
-            if doe_type == "Full Factorial":
-                speeds = [120, 280]  # low, high
-                pressures = [15, 45]  # low, high
-                temps = [25, 75]     # low, high
-                materials = [0, 2]   # A, C (low, high)
-                
-                for spd in speeds:
-                    for prs in pressures:
-                        for tmp in temps:
-                            for mat in materials:
-                                # Center point for cycle time
-                                ctime = 30
-                                
-                                yld = (
-                                    80
-                                    + speed_coef * (spd - 200)
-                                    + pressure_coef * (prs - 30)
-                                    + temp_coef * (tmp - 50)
-                                    + material_coef * mat
-                                    + speed_pressure_coef * (spd - 200) * (prs - 30)
-                                    + speed_temp_coef * (spd - 200) * (tmp - 50)
-                                    + pressure_temp_coef * (prs - 30) * (tmp - 50)
-                                    - 0.002 * ((ctime - 30) ** 2)
-                                    + np.random.normal(0, noise_level)
-                                )
-                                yld = np.clip(yld, 50, 100)
-                                data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
-                                
-                # Add center points
-                for _ in range(3):  # 3 center point replicates
-                    spd, prs, tmp, mat = 200, 30, 50, 1  # center values (material B)
-                    ctime = 30
-                    
-                    yld = (
-                        80
-                        + speed_coef * (spd - 200)
-                        + pressure_coef * (prs - 30)
-                        + temp_coef * (tmp - 50)
-                        + material_coef * mat
-                        + speed_pressure_coef * (spd - 200) * (prs - 30)
-                        + speed_temp_coef * (spd - 200) * (tmp - 50)
-                        + pressure_temp_coef * (prs - 30) * (tmp - 50)
-                        - 0.002 * ((ctime - 30) ** 2)
-                        + np.random.normal(0, noise_level)
-                    )
-                    yld = np.clip(yld, 50, 100)
-                    data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
-                    
-            else:  # Fractional factorial - half fraction of full factorial
-                # Generate a half-fraction by using relation D = ABC
-                speeds = [120, 280]      # Factor A
-                pressures = [15, 45]     # Factor B
-                temps = [25, 75]         # Factor C
-                
-                # Only generate half the design points
-                for spd_idx, spd in enumerate(speeds):
-                    for prs_idx, prs in enumerate(pressures):
-                        for tmp_idx, tmp in enumerate(temps):
-                            # Generator relation: mat_idx = spd_idx * prs_idx * tmp_idx (modulo 2)
-                            # This ensures a half fraction
-                            if (spd_idx + prs_idx + tmp_idx) % 2 == 0:
-                                mat = 0  # A
-                            else:
-                                mat = 2  # C
-                            
+            speeds = [120, 280]  # low, high
+            pressures = [15, 45]  # low, high
+            temps = [25, 75]     # low, high
+            materials = [0, 2]   # A, C (low, high)
+            
+            for spd in speeds:
+                for prs in pressures:
+                    for tmp in temps:
+                        for mat in materials:
                             ctime = 30
                             
                             yld = (
@@ -345,37 +328,31 @@ with tab2:
                             )
                             yld = np.clip(yld, 50, 100)
                             data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
-                            
-                # Add center points
-                for _ in range(3):
-                    spd, prs, tmp, mat = 200, 30, 50, 1  # center values
-                    ctime = 30
-                    
-                    yld = (
-                        80
-                        + speed_coef * (spd - 200)
-                        + pressure_coef * (prs - 30)
-                        + temp_coef * (tmp - 50)
-                        + material_coef * mat
-                        + speed_pressure_coef * (spd - 200) * (prs - 30)
-                        + speed_temp_coef * (spd - 200) * (tmp - 50)
-                        + pressure_temp_coef * (prs - 30) * (tmp - 50)
-                        - 0.002 * ((ctime - 30) ** 2)
-                        + np.random.normal(0, noise_level)
-                    )
-                    yld = np.clip(yld, 50, 100)
-                    data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
+            
+            for _ in range(3):
+                spd, prs, tmp, mat = 200, 30, 50, 1
+                ctime = 30
+                
+                yld = (
+                    80
+                    + speed_coef * (spd - 200)
+                    + pressure_coef * (prs - 30)
+                    + temp_coef * (tmp - 50)
+                    + material_coef * mat
+                    + speed_pressure_coef * (spd - 200) * (prs - 30)
+                    + speed_temp_coef * (spd - 200) * (tmp - 50)
+                    + pressure_temp_coef * (prs - 30) * (tmp - 50)
+                    - 0.002 * ((ctime - 30) ** 2)
+                    + np.random.normal(0, noise_level)
+                )
+                yld = np.clip(yld, 50, 100)
+                data.append([spd, prs, tmp, ['A', 'B', 'C'][mat], ctime, yld])
         
         # Create a DataFrame
         df = pd.DataFrame(data, columns=["Speed", "Pressure", "Temperature", "Material", "Cycle_Time", "Yield"])
         
         # Store in session state
         st.session_state.experiment_data = df
-        # Reset visualization settings to defaults
-        st.session_state.viz_type = "3D Scatter"
-        st.session_state.x_axis = "Speed"
-        st.session_state.y_axis = "Pressure"
-        st.session_state.factor_to_analyze = "Material"
         
     # Check if we have experiment data to display
     if st.session_state.experiment_data is not None:
@@ -397,14 +374,11 @@ with tab2:
             st.metric("Maximum Yield", f"{df['Yield'].max():.2f}%")
             st.metric("Std Deviation", f"{df['Yield'].std():.2f}")
         
-        # Visualization options - store selection in session_state to persist across reruns
-        st.subheader("Data Visualization")
-        viz_type = st.selectbox("Visualization Type", 
-                              ["3D Scatter", "Heatmap", "Box Plots"],
-                              index=["3D Scatter", "Heatmap", "Box Plots"].index(st.session_state.viz_type))
+        # Get visualization selection from session state
+        viz_type = st.session_state.viz_type
         
-        # Update session state with new selection
-        st.session_state.viz_type = viz_type
+        # Visualization
+        st.subheader("Data Visualization")
         
         if viz_type == "3D Scatter":
             fig = px.scatter_3d(df, x="Speed", y="Pressure", z="Yield", color="Material",
@@ -413,55 +387,52 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
             
         elif viz_type == "Heatmap":
-            # Get x_axis and y_axis from session state if they exist, with defaults
-            x_axis = st.selectbox("X-Axis", 
-                               ["Speed", "Pressure", "Temperature"],
-                               index=["Speed", "Pressure", "Temperature"].index(st.session_state.x_axis))
-            y_axis = st.selectbox("Y-Axis", 
-                               ["Pressure", "Temperature", "Speed"],
-                               index=["Pressure", "Temperature", "Speed"].index(st.session_state.y_axis))
-            
-            # Update session state
-            st.session_state.x_axis = x_axis
-            st.session_state.y_axis = y_axis
+            x_axis = st.session_state.x_axis
+            y_axis = st.session_state.y_axis
             
             if x_axis != y_axis:
-                # Create bin edges for continuous variables
+                # Fix for the JSON serialization error
+                # Create bin edges for continuous variables and convert to string labels
                 x_bins = pd.cut(df[x_axis], 5)
                 y_bins = pd.cut(df[y_axis], 5)
                 
-                # Create pivot table with bins
+                # Create a pivot table with the bin midpoints instead of Interval objects
+                # Convert intervals to their string representation for binning
+                df['x_bin_str'] = x_bins.map(lambda x: f"{x.mid:.1f}")
+                df['y_bin_str'] = y_bins.map(lambda x: f"{x.mid:.1f}")
+                
+                # Create pivot table with string labels
                 pivot = df.pivot_table(
                     values="Yield", 
-                    index=y_bins, 
-                    columns=x_bins, 
+                    index='y_bin_str', 
+                    columns='x_bin_str', 
                     aggfunc="mean"
                 )
                 
                 # Create heatmap
                 fig = px.imshow(pivot, 
-                               labels=dict(x=x_axis, y=y_axis, color="Yield (%)"),
-                               title=f"Average Yield Heatmap: {y_axis} vs {x_axis}")
+                              labels=dict(x=x_axis, y=y_axis, color="Yield (%)"),
+                              title=f"Average Yield Heatmap: {y_axis} vs {x_axis}")
+                
                 st.plotly_chart(fig, use_container_width=True)
             else:
                 st.error("Please select different variables for X and Y axes")
                 
         else:  # Box plots
-            factor = st.selectbox("Factor to Analyze", 
-                               ["Material", "Speed", "Pressure", "Temperature"],
-                               index=["Material", "Speed", "Pressure", "Temperature"].index(st.session_state.factor_to_analyze))
-            
-            # Update session state
-            st.session_state.factor_to_analyze = factor
+            factor = st.session_state.factor_to_analyze
             
             if factor == "Material":
                 fig = px.box(df, x="Material", y="Yield", color="Material",
                            title="Yield Distribution by Material Type")
             else:
-                # Create bins for continuous variables
+                # Fix for the JSON serialization error
+                # Create bins and convert to string labels immediately
                 bins = pd.cut(df[factor], 5)
-                fig = px.box(df, x=bins, y="Yield",
-                           title=f"Yield Distribution by {factor} Ranges")
+                df['bin_str'] = bins.map(lambda x: f"{x.mid:.1f}")
+                
+                fig = px.box(df, x='bin_str', y="Yield",
+                           title=f"Yield Distribution by {factor} Ranges", 
+                           labels={'bin_str': factor})
                 
             st.plotly_chart(fig, use_container_width=True)
             
@@ -753,7 +724,6 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center;'>
 <p><b>DoE Manufacturing Yield Simulator</b><br>
-Created for fun<br>
 Version 1.0 - April 2024</p>
 </div>
 """, unsafe_allow_html=True)
