@@ -2,14 +2,14 @@
 
 ## Overview
 This interactive web application simulates manufacturing process yields based on key input factors. It helps users explore and understand Design of Experiments (DoE) concepts like main effects, interactions, and noise in a manufacturing context. 
-![alt text](./Image/SingleRun.png)
+
 ## Features
 
 ### 1. Interactive Process Simulation
 - Adjust machine speed, pressure, temperature, material type, and cycle time parameters
 - Observe real-time yield predictions with detailed breakdown of factor contributions
 - Visual gauge chart for quick yield assessment
-
+![alt text](./Image/SingleRun.png)
 ### 2. Multiple Experiment Capabilities
 - Run batches of experiments with different sampling strategies:
   - Random sampling (uniform or normal distribution)
@@ -17,18 +17,18 @@ This interactive web application simulates manufacturing process yields based on
   - Standard DoE designs (full factorial and fractional factorial)
 - Visualize results through 3D plots, heatmaps, and box plots
 - Export experiment data for further analysis in other tools
-
+![alt text](./Image/MultiRun.png)
 ### 3. DoE Analysis Tools
 - Main effects plots showing how individual factors affect yield
 - Interaction plots revealing how factors work together
 - Statistical significance testing with p-value reporting
 - Pareto charts to identify the most important factors
-
+![alt text](./Image/DoEAnalysis.png)
 ### 4. Response Surface Methodology
 - 3D response surface visualization
 - 2D contour plots for identifying optimal regions
 - Automated optimal settings finder to maximize yield
-
+![alt text](./Image/RSM.png)
 ## Installation
 
 ### Prerequisites
