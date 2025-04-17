@@ -9,6 +9,18 @@ from statsmodels.formula.api import ols
 import io
 import base64
 
+# Initialize session state variables if they don't exist
+if 'experiment_data' not in st.session_state:
+    st.session_state.experiment_data = None
+if 'viz_type' not in st.session_state:
+    st.session_state.viz_type = "3D Scatter"
+if 'x_axis' not in st.session_state:
+    st.session_state.x_axis = "Speed"
+if 'y_axis' not in st.session_state:
+    st.session_state.y_axis = "Pressure"
+if 'factor_to_analyze' not in st.session_state:
+    st.session_state.factor_to_analyze = "Material"
+
 # Page configuration
 st.set_page_config(
     page_title="DoE Manufacturing Yield Simulator",
@@ -359,6 +371,15 @@ with tab2:
         
         # Store in session state
         st.session_state.experiment_data = df
+        # Reset visualization settings to defaults
+        st.session_state.viz_type = "3D Scatter"
+        st.session_state.x_axis = "Speed"
+        st.session_state.y_axis = "Pressure"
+        st.session_state.factor_to_analyze = "Material"
+        
+    # Check if we have experiment data to display
+    if st.session_state.experiment_data is not None:
+        df = st.session_state.experiment_data
         
         # Display results
         st.subheader("Results")
@@ -376,9 +397,14 @@ with tab2:
             st.metric("Maximum Yield", f"{df['Yield'].max():.2f}%")
             st.metric("Std Deviation", f"{df['Yield'].std():.2f}")
         
-        # Visualization options
+        # Visualization options - store selection in session_state to persist across reruns
         st.subheader("Data Visualization")
-        viz_type = st.selectbox("Visualization Type", ["3D Scatter", "Heatmap", "Box Plots"])
+        viz_type = st.selectbox("Visualization Type", 
+                              ["3D Scatter", "Heatmap", "Box Plots"],
+                              index=["3D Scatter", "Heatmap", "Box Plots"].index(st.session_state.viz_type))
+        
+        # Update session state with new selection
+        st.session_state.viz_type = viz_type
         
         if viz_type == "3D Scatter":
             fig = px.scatter_3d(df, x="Speed", y="Pressure", z="Yield", color="Material",
@@ -387,9 +413,17 @@ with tab2:
             st.plotly_chart(fig, use_container_width=True)
             
         elif viz_type == "Heatmap":
-            # Create pivot table
-            x_axis = st.selectbox("X-Axis", ["Speed", "Pressure", "Temperature"])
-            y_axis = st.selectbox("Y-Axis", ["Pressure", "Temperature", "Speed"])
+            # Get x_axis and y_axis from session state if they exist, with defaults
+            x_axis = st.selectbox("X-Axis", 
+                               ["Speed", "Pressure", "Temperature"],
+                               index=["Speed", "Pressure", "Temperature"].index(st.session_state.x_axis))
+            y_axis = st.selectbox("Y-Axis", 
+                               ["Pressure", "Temperature", "Speed"],
+                               index=["Pressure", "Temperature", "Speed"].index(st.session_state.y_axis))
+            
+            # Update session state
+            st.session_state.x_axis = x_axis
+            st.session_state.y_axis = y_axis
             
             if x_axis != y_axis:
                 # Create bin edges for continuous variables
@@ -413,7 +447,12 @@ with tab2:
                 st.error("Please select different variables for X and Y axes")
                 
         else:  # Box plots
-            factor = st.selectbox("Factor to Analyze", ["Material", "Speed", "Pressure", "Temperature"])
+            factor = st.selectbox("Factor to Analyze", 
+                               ["Material", "Speed", "Pressure", "Temperature"],
+                               index=["Material", "Speed", "Pressure", "Temperature"].index(st.session_state.factor_to_analyze))
+            
+            # Update session state
+            st.session_state.factor_to_analyze = factor
             
             if factor == "Material":
                 fig = px.box(df, x="Material", y="Yield", color="Material",
@@ -436,7 +475,7 @@ with tab2:
 with tab3:
     st.header("DoE Analysis")
     
-    if 'experiment_data' not in st.session_state:
+    if 'experiment_data' not in st.session_state or st.session_state.experiment_data is None:
         st.info("Please run experiments in the 'Multiple Experiments' tab first to enable analysis")
     else:
         df = st.session_state.experiment_data
@@ -591,7 +630,7 @@ with tab4:
     st.header("Response Surface Methodology")
     st.write("Explore the response surface to find optimal settings for your process.")
     
-    if 'experiment_data' not in st.session_state:
+    if 'experiment_data' not in st.session_state or st.session_state.experiment_data is None:
         st.info("Please run experiments in the 'Multiple Experiments' tab first")
     else:
         df = st.session_state.experiment_data
@@ -714,8 +753,8 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center;'>
 <p><b>DoE Manufacturing Yield Simulator</b><br>
-Created for Operation Excellence Six Sigma<br>
-Version 1.0 - April 2025</p>
+Created for fun<br>
+Version 1.0 - April 2024</p>
 </div>
 """, unsafe_allow_html=True)
 
