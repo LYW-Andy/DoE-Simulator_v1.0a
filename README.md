@@ -1,7 +1,7 @@
 # 🏭 Manufacturing Yield DoE Simulator
 
 ## Overview
-This interactive web application simulates manufacturing process yields based on key input factors. It helps users explore and understand Design of Experiments (DoE) concepts like main effects, interactions, and noise in a manufacturing context. This tool was designed to provide a Python-based alternative to JMP's interactive simulations.
+This interactive web application simulates manufacturing process yields based on key input factors. It helps users explore and understand Design of Experiments (DoE) concepts like main effects, interactions, and noise in a manufacturing context. 
 
 ## Features
 
@@ -79,4 +79,5 @@ Design of Experiments is a systematic approach to determining the relationship b
 
 ## Version Information
 - Version: 1.0 (April 2025)
-- Developed for: IA4.0 Smart Factory Project
+- Developed by: Andy Leong
+- Email: andy.leongyw@ams-osram.com
