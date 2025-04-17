@@ -2,7 +2,7 @@
 
 ## Overview
 This interactive web application simulates manufacturing process yields based on key input factors. It helps users explore and understand Design of Experiments (DoE) concepts like main effects, interactions, and noise in a manufacturing context. 
-![alt text](image/SingleRun.png)
+![alt text](./Image/SingleRun.png)
 ## Features
 
 ### 1. Interactive Process Simulation
