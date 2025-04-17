@@ -714,7 +714,7 @@ st.markdown("---")
 st.markdown("""
 <div style='text-align: center;'>
 <p><b>DoE Manufacturing Yield Simulator</b><br>
-Created for IA4.0 Smart Factory Project<br>
+Created for Operation Excellence Six Sigma<br>
 Version 1.0 - April 2025</p>
 </div>
 """, unsafe_allow_html=True)
