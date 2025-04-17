@@ -1,0 +1,96 @@
+===================================
+MANUFACTURING YIELD DOE SIMULATOR
+SIMPLE USER GUIDE
+===================================
+
+This guide explains in simple terms how to use each tab of the Manufacturing Yield DoE Simulator.
+
+-------------------------------
+GENERAL INTERFACE
+-------------------------------
+
+The app has a sidebar on the left with general settings:
+- "Process Noise Level" slider controls how much random variation occurs in the process
+- "Show Advanced Settings" checkbox reveals options to adjust how strongly each factor affects yield
+- "About DoE Concepts" dropdown provides basic explanations of DoE terminology
+
+The main area has four tabs that each serve a different purpose:
+
+-------------------------------
+TAB 1: SINGLE RUN
+-------------------------------
+
+WHAT IT DOES:
+This tab lets you adjust one setting at a time to see how it affects yield.
+
+HOW TO USE IT:
+1. Move the sliders (Speed, Pressure, Temperature, etc.)
+2. Watch the gauge chart update immediately
+3. Look at the "Process Parameter Analysis" to see how each factor contributes
+
+TEACHING VALUE:
+Shows cause-and-effect relationship between individual settings and final yield.
+
+-------------------------------
+TAB 2: MULTIPLE EXPERIMENTS
+-------------------------------
+
+WHAT IT DOES:
+This tab lets you run many experiments at once to generate data.
+
+HOW TO USE IT:
+1. Choose how many experiments to run (10-500)
+2. Select the experiment type:
+   - "Random": Generates random settings
+   - "Grid": Creates a systematic grid of settings
+   - "Custom DoE": Uses proper experimental design principles
+3. Click "Run Experiments"
+4. View the results table and charts
+5. Download the data if needed
+
+TEACHING VALUE:
+Shows how collecting proper data helps us understand a process better than just making random adjustments.
+
+-------------------------------
+TAB 3: DOE ANALYSIS
+-------------------------------
+
+WHAT IT DOES:
+This tab analyzes experiment data to show how each factor affects yield.
+
+HOW TO USE IT:
+1. Run experiments in Tab 2 first
+2. Look at the "Main Effects Plots" to see which factors matter most
+3. Use the "Interaction Plots" to see how factors work together
+4. Check the "Pareto Chart" to see which effects are most important
+
+TEACHING VALUE:
+Shows which process settings actually matter and which ones interact with each other - helping identify what to focus on.
+
+-------------------------------
+TAB 4: RESPONSE SURFACE
+-------------------------------
+
+WHAT IT DOES:
+This tab creates 3D models showing how to optimize yield.
+
+HOW TO USE IT:
+1. Run experiments in Tab 2 first
+2. Select two factors to analyze (X-Axis and Y-Axis)
+3. View the 3D surface and 2D contour plots
+4. Click "Find Optimal Settings" to get recommendations
+
+TEACHING VALUE:
+Shows how to find the "sweet spot" of settings that gives the best yield - the ultimate goal of DoE in manufacturing.
+
+-------------------------------
+SUMMARY
+-------------------------------
+
+Think of the simulator as a journey:
+1. Single Run = "What happens if I change this one thing?"
+2. Multiple Experiments = "Let's collect proper data"
+3. DoE Analysis = "What patterns can we see in our data?"
+4. Response Surface = "Where's the optimal operating point?"
+
+This sequence mirrors how DoE is actually used in real manufacturing to improve processes and quality.
