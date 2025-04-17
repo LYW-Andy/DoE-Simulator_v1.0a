@@ -80,4 +80,3 @@ Design of Experiments is a systematic approach to determining the relationship b
 ## Version Information
 - Version: 1.0 (April 2025)
 - Developed by: Andy Leong
-- Email: andy.leongyw@ams-osram.com
