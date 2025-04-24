@@ -78,5 +78,5 @@ Design of Experiments is a systematic approach to determining the relationship b
 - **Noise**: Random variation in the process that can't be controlled
 
 ## Version Information
-- Version: 1.0 (April 2025)
+- Version: 1.0 (April 2024)
 - Developed by: Andy Leong
